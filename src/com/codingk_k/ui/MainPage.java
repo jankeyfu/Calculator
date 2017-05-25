@@ -4,13 +4,21 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import com.codingk_k.utils.PolandAlgo;
+
 public class MainPage extends JFrame implements ActionListener {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private JTextField tf_result;
 	private JPanel pl_button;
 
@@ -25,6 +33,10 @@ public class MainPage extends JFrame implements ActionListener {
 	private JButton bt_dot;
 	private JButton bt_db0;
 	private JButton[] bt_num;
+
+	
+	private String answer="0.";
+	private List<JButton> bt_list = null;
 
 	public MainPage() {
 		init();
@@ -64,7 +76,6 @@ public class MainPage extends JFrame implements ActionListener {
 
 	public void draw() {
 		add(tf_result, BorderLayout.NORTH);
-
 		pl_button.add(bt_ce);
 		pl_button.add(bt_back);
 		pl_button.add(bt_ans);
@@ -87,14 +98,58 @@ public class MainPage extends JFrame implements ActionListener {
 		pl_button.add(bt_dot);
 		pl_button.add(bt_eql);
 		add(pl_button, BorderLayout.CENTER);
+		// 将按钮添加到list中
+		bt_list = new ArrayList<>();
+		bt_list.add(bt_ce);
+		bt_list.add(bt_back);
+		bt_list.add(bt_ans);
+		bt_list.add(bt_div);
+		bt_list.add(bt_num[7]);
+		bt_list.add(bt_num[8]);
+		bt_list.add(bt_num[9]);
+		bt_list.add(bt_mul);
+		bt_list.add(bt_num[4]);
+		bt_list.add(bt_num[5]);
+		bt_list.add(bt_num[6]);
+		bt_list.add(bt_sub);
+		bt_list.add(bt_num[1]);
+		bt_list.add(bt_num[2]);
+		bt_list.add(bt_num[3]);
+		bt_list.add(bt_add);
+		bt_list.add(bt_db0);
+		bt_list.add(bt_num[0]);
+		bt_list.add(bt_dot);
+		bt_list.add(bt_eql);
+
 	}
 
 	public void addActionListener() {
-
+		for (int i = 0; i < bt_list.size(); i++) {
+			bt_list.get(i).addActionListener(this);
+		}
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-
+		for (int i = 3; i < bt_list.size()-1; i++) {
+			if (e.getSource() == bt_list.get(i)) {
+				String temp = tf_result.getText()+bt_list.get(i).getText();
+				tf_result.setText(temp);
+			}
+		}
+		if(e.getSource()==bt_ce){
+			tf_result.setText("");
+		}else if(e.getSource()==bt_back) {
+			String temp = tf_result.getText();
+			temp = temp.substring(0,temp.length()-1);
+			tf_result.setText(temp);
+		}else if(e.getSource()==bt_ans){
+			tf_result.setText(answer);
+		}else if(e.getSource()==bt_eql){
+			String temp = tf_result.getText();
+			temp = String.valueOf(PolandAlgo.calculate(temp));
+			tf_result.setText(temp);
+			answer = temp;
+		}
 	}
 }
