@@ -1,88 +1,102 @@
 package com.codingk_k.utils;
 
-import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Stack;
 
 /**
  * TODO 还要很多需要优化的地方：括号的匹配，乘除应该有double，而不是用Integer，包括小数点的读取 Fighting
  * 
+ * @Date 2017/05/25 修复了括号匹配,修复double算法
  * @author apple
- *
  */
 public class PolandAlgo {
-	private static Stack<String> polandAlgo(String str) {
+	/**
+	 * 将中缀表达式转换为后缀表达式
+	 * 
+	 * @param str
+	 * @return
+	 */
+	private static Queue<String> polandAlgo(String str) {
 		String temp = "";
-		Stack<String> num = new Stack<>();
+		// 操作数栈
+		Queue<String> num = new LinkedList<String>();
+		// 操作符栈
 		Stack<Character> operator = new Stack<>();
 
 		for (int i = 0; i < str.length(); i++) {
 			char c = str.charAt(i);
-
-			if (c >= 48 && c <= 57) {
+			if (c >= 48 && c <= 57 || c == '.') {
 				temp += c;
 			} else {
-
 				if (!temp.isEmpty()) {
-					num.push(temp);
+					num.add(temp);
 				}
 				if (operator.isEmpty()) {
 					operator.push(c);
 				} else {
-					if (operatorPriority(c) >= operatorPriority(operator.peek())) {
+					switch (c) {
+					case '(':
 						operator.push(c);
-					} else {
-						while (operator != null && operatorPriority(c) < operatorPriority(operator.peek())) {
-							num.push(operator.pop().toString());
+						break;
+					case ')':
+						while (operator.peek() != '(') {
+							num.add(operator.pop().toString());
 						}
-						operator.push(c);
+						operator.pop();
+						break;
+					default:
+						if (operatorPriority(c) >= operatorPriority(operator.peek())) {
+							operator.push(c);
+						} else {
+							while (!operator.isEmpty() && operatorPriority(c) < operatorPriority(operator.peek())
+									&& operator.peek() != '(') {
+								num.add(operator.pop().toString());
+							}
+							operator.push(c);
+						}
+						break;
 					}
 				}
 				temp = "";
 			}
 		}
+
 		if (!temp.isEmpty()) {
-			num.push(temp);
+			num.add(temp);
 		}
 		while (!operator.isEmpty()) {
-			num.push(operator.pop().toString());
+			num.add(operator.pop().toString());
 		}
 		return num;
 	}
 
-	public static int getRes(Stack<String> num) {
-		double res = 0;
+	public static double getRes(Queue<String> num) {
 		Stack<String> result = new Stack<>();
-		String[] str = new String[num.size()];
-		int index = str.length;
-		while (!num.isEmpty()) {
-			str[--index] = num.pop();
-			// System.out.println(Arrays.toString(str));
-		}
-		for (int i = 0; i < str.length; i++) {
+		int size = num.size();
+		for (int i = 0; i < size; i++) {
+			String sdata = num.poll();
 			try {
-				int data = Integer.valueOf(str[i]);
+				double data = Double.valueOf(sdata);
 				result.push(String.valueOf(data));
 			} catch (Exception e) {
-				switch (str[i]) {
-
+				switch (sdata) {
 				case "+":
-					int add = Integer.valueOf(result.pop()) + Integer.valueOf(result.pop());
-					// System.out.println(add);
+					double add = Double.valueOf(result.pop()) + Double.valueOf(result.pop());
 					result.push(String.valueOf(add));
 					break;
 				case "-":
-					add = -(Integer.valueOf(result.pop()) - Integer.valueOf(result.pop()));
-					// System.out.println(add);
+					add = -(Double.valueOf(result.pop()) - Double.valueOf(result.pop()));
 					result.push(String.valueOf(add));
 					break;
 				case "*":
-					add = Integer.valueOf(result.pop()) * Integer.valueOf(result.pop());
-					// System.out.println(add);
+					add = Double.valueOf(result.pop()) * Double.valueOf(result.pop());
 					result.push(String.valueOf(add));
 					break;
 				case "/":
-					add = Integer.valueOf(result.pop()) / Integer.valueOf(result.pop());
-					// System.out.println(add);
+					double num1 = Double.valueOf(result.pop());
+					double num2 = Double.valueOf(result.pop());
+					add = num2 / num1;
 					result.push(String.valueOf(add));
 					break;
 				default:
@@ -90,7 +104,7 @@ public class PolandAlgo {
 				}
 			}
 		}
-		return Integer.valueOf(result.pop());
+		return Double.valueOf(result.pop());
 	}
 
 	private static final int MIN_PRIORITY = 0;
@@ -98,7 +112,13 @@ public class PolandAlgo {
 	private static final int MAX_PRIORITY = 2;
 
 	/**
-	 * 设置运算符优先级： + -优先级最低 * /优先级次之 ( )优先级最高
+	 * 设置运算符优先级：
+	 * 
+	 * + -优先级最低
+	 * 
+	 * * /优先级次之
+	 * 
+	 * ( )优先级最高
 	 * 
 	 * @param c
 	 * @return
@@ -111,14 +131,13 @@ public class PolandAlgo {
 		else
 			return MAX_PRIORITY;
 	}
-	//
-	// public static void main(String[] args) {
-	// Stack<String> num = polandAlgo("1+2*3-4");
-	// System.out.println(getRes(num));
-	// }
 
-	public static int calculate(String str) {
-		Stack<String> num = polandAlgo(str);
-		return getRes(num);
+	public static String calculate(String str) {
+		Queue<String> num = polandAlgo(str);
+		double result = getRes(num);
+		if (String.valueOf(result).endsWith(".0"))
+			return String.valueOf((int) result);
+		return String.valueOf(result);
 	}
+
 }

@@ -21,6 +21,7 @@ public class MainPage extends JFrame implements ActionListener {
 	private static final long serialVersionUID = 1L;
 	private JTextField tf_result;
 	private JPanel pl_button;
+	private JPanel pl_result;
 
 	private JButton bt_ce;
 	private JButton bt_back;
@@ -34,8 +35,7 @@ public class MainPage extends JFrame implements ActionListener {
 	private JButton bt_db0;
 	private JButton[] bt_num;
 
-	
-	private String answer="0.";
+	private String answer = "0.";
 	private List<JButton> bt_list = null;
 
 	public MainPage() {
@@ -57,6 +57,10 @@ public class MainPage extends JFrame implements ActionListener {
 
 		pl_button = new JPanel();
 		pl_button.setLayout(new GridLayout(5, 4));
+		pl_result = new JPanel();
+		tf_result.setSize(50, 600);
+		pl_result.setSize(50, 600);
+		pl_result.add(tf_result);
 
 		bt_ce = new JButton("C");
 		bt_back = new JButton("<-");
@@ -129,23 +133,43 @@ public class MainPage extends JFrame implements ActionListener {
 		}
 	}
 
+	/**
+	 * 用于判断是否是初次输入，保持显示框为“0.”
+	 */
+	private boolean isFirst = true;
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		for (int i = 3; i < bt_list.size()-1; i++) {
+		for (int i = 3; i < bt_list.size() - 1; i++) {
 			if (e.getSource() == bt_list.get(i)) {
-				String temp = tf_result.getText()+bt_list.get(i).getText();
+				if (isFirst) {
+					tf_result.setText("");
+					isFirst = false;
+				}
+				String temp = tf_result.getText() + bt_list.get(i).getText();
 				tf_result.setText(temp);
 			}
 		}
-		if(e.getSource()==bt_ce){
-			tf_result.setText("");
-		}else if(e.getSource()==bt_back) {
-			String temp = tf_result.getText();
-			temp = temp.substring(0,temp.length()-1);
-			tf_result.setText(temp);
-		}else if(e.getSource()==bt_ans){
+		if (e.getSource() == bt_ce) {
+			tf_result.setText("0.");
+			isFirst = true;
+		}
+		/**
+		 * 如果是初次按back键，不会删除“0.”
+		 */
+		if (e.getSource() == bt_back && !isFirst) {
+			if (tf_result.getText().length() == 1 || "0.".equals(tf_result.getText())) {
+				tf_result.setText("0.");
+			} else {
+				String temp = tf_result.getText();
+				temp = temp.substring(0, temp.length() - 1);
+				tf_result.setText(temp);
+			}
+		}
+		if (e.getSource() == bt_ans) {
 			tf_result.setText(answer);
-		}else if(e.getSource()==bt_eql){
+		}
+		if (e.getSource() == bt_eql && !isFirst) {
 			String temp = tf_result.getText();
 			temp = String.valueOf(PolandAlgo.calculate(temp));
 			tf_result.setText(temp);
